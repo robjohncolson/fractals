@@ -20,6 +20,7 @@ let session: Session = {
   tree: null,
   workspace: null,
   batchStrategy: "depth-first",
+  executor: "claude",
   phase: "idle",
 };
 
@@ -63,17 +64,20 @@ app.post("/api/execute", async (c) => {
     return c.json({ error: "No plan or workspace" }, 400);
   }
 
-  const body = await c.req.json<{ strategy?: string }>().catch(() => ({} as { strategy?: string }));
-  const { strategy } = body;
+  const body = await c.req.json<{ strategy?: string; executor?: string }>().catch(() => ({} as { strategy?: string; executor?: string }));
+  const { strategy, executor } = body;
   if (strategy === "depth-first" || strategy === "breadth-first" || strategy === "layer-sequential") {
     session.batchStrategy = strategy;
+  }
+  if (executor === "claude" || executor === "codex") {
+    session.executor = executor;
   }
 
   session.phase = "executing";
   const batches = createBatches(session.tree, session.batchStrategy);
 
   // Execute batches sequentially, tasks within each batch concurrently
-  console.log(`[server] starting execution: ${batches.length} batches, strategy="${session.batchStrategy}"`);
+  console.log(`[server] starting execution: ${batches.length} batches, strategy="${session.batchStrategy}", executor="${session.executor}"`);
   (async () => {
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
@@ -83,7 +87,7 @@ app.post("/api/execute", async (c) => {
           task.status = "running";
           console.log(`[server] [${task.id}] running: "${task.description}"`);
           try {
-            task.result = await executeTask(task, session.workspace!);
+            task.result = await executeTask(task, session.workspace!, session.executor);
             task.status = "done";
             console.log(`[server] [${task.id}] done`);
           } catch (err) {

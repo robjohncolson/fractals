@@ -1,5 +1,6 @@
 export type TaskKind = "atomic" | "composite";
 export type TaskStatus = "pending" | "decomposing" | "ready" | "running" | "done" | "failed";
+export type ExecutorProvider = "claude" | "codex";
 
 export interface Task {
   id: string;           // hierarchical: "1", "1.2", "1.2.3"
@@ -21,5 +22,6 @@ export interface Session {
   tree: Task | null;
   workspace: string | null;
   batchStrategy: BatchStrategy;
+  executor: ExecutorProvider;
   phase: "idle" | "decomposing" | "planning" | "executing" | "done";
 }

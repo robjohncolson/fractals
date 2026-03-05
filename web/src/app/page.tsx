@@ -31,6 +31,7 @@ export default function Home() {
   const [maxDepth, setMaxDepth] = useState(3);
   const [tree, setTree] = useState<Task | null>(null);
   const [workspace, setWorkspace] = useState("");
+  const [executor, setExecutor] = useState<"claude" | "codex">("claude");
   const [batches, setBatches] = useState<string[][]>([]);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -74,7 +75,7 @@ export default function Home() {
     if (!workspace.trim()) return;
     await initWorkspace(workspace);
     setPhase("executing");
-    const result = await startExecution("depth-first");
+    const result = await startExecution("depth-first", executor);
     setBatches(result.batches);
   }
 
@@ -164,6 +165,26 @@ export default function Home() {
                   onKeyDown={(e) => e.key === "Enter" && handleSetupWorkspace()}
                   className="font-mono text-sm"
                 />
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="text-sm text-muted-foreground">Executor</label>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={executor === "claude" ? "default" : "outline"}
+                    onClick={() => setExecutor("claude")}
+                  >
+                    Claude
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={executor === "codex" ? "default" : "outline"}
+                    onClick={() => setExecutor("codex")}
+                  >
+                    Codex
+                  </Button>
+                </div>
+                <div className="flex-1" />
                 <Button onClick={handleSetupWorkspace} disabled={!workspace.trim()}>
                   Confirm &amp; Execute
                 </Button>

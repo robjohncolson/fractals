@@ -18,13 +18,13 @@ Port `1618` — the golden ratio, the constant behind fractal geometry.
 ┌────────────────────▼────────────────────────────────────┐
 │  src/  (Hono server)                                    │
 │                                                         │
-│  ┌─────────┐   ┌──────────┐   ┌──────────────────────┐ │
-│  │  LLM    │   │Orchestr- │   │  Executor            │ │
-│  │classify │──>│  ator    │   │  Claude CLI           │ │
-│  │decompose│   │ plan()   │   │  git worktrees        │ │
-│  └─────────┘   └──────────┘   └──────────────────────┘ │
+│  ┌─────────┐   ┌──────────┐   ┌──────────────────────┐  │
+│  │  LLM    │   │Orchestr- │   │  Executor            │  │
+│  │classify │──>│  ator    │   │  Claude / Codex CLI  │  │
+│  │decompose│   │ plan()   │   │  git worktrees       │  │
+│  └─────────┘   └──────────┘   └──────────────────────┘  │
 │                                                         │
-│  OpenAI (gpt-5.2)              Claude Code CLI (spawn)  │
+│  OpenAI (gpt-5.2)            Claude / Codex CLI (spawn) │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -127,11 +127,35 @@ cd web && npm run dev
 
 ## Roadmap
 
+**Executor**
+- [ ] OpenCode CLI as a third executor option
+- [ ] Per-task executor override (mix Claude and Codex in one plan)
+- [ ] Merge worktree branches back to main after completion
+
+**Backpropagation (merge agent)**
+- [ ] After all leaf tasks under a composite node complete, run a merger agent that combines their worktree branches into one cohesive result
+- [ ] Propagate bottom-up: merge layer N leaves into layer N-1 composites, then merge those into layer N-2, all the way to root
+- [ ] Merger agent resolves conflicts, wires modules together, ensures sibling outputs are compatible
+- [ ] Final merge at root produces a single unified branch with the complete project
+
+**Task dependencies & priority**
+- [ ] Peer dependencies between subtasks -- declare that task 1.2 depends on 1.1's output (e.g., API must exist before frontend can call it)
+- [ ] Dependency-aware scheduling -- respect declared ordering constraints when batching, run independent tasks concurrently but block dependents until prerequisites complete
+- [ ] Priority weights -- allow marking subtasks as critical path vs. nice-to-have, execute high-priority tasks first within a batch
+- [ ] LLM-inferred dependencies -- during decompose, have the LLM output dependency edges between sibling subtasks (structured output: `{ subtasks, dependencies }`)
+
+**Batch strategies**
 - [ ] Breadth-first batch strategy
 - [ ] Layer-sequential batch strategy
 - [ ] Configurable concurrency limit per batch
+
+**Classify / decompose heuristics**
+- [ ] User-defined heuristics -- inject custom rules into classify/decompose prompts (e.g., "always treat database migrations as atomic", "split frontend and backend into separate subtasks")
+- [ ] Project-aware context -- feed existing codebase structure (file tree, package.json) into classify/decompose so the LLM knows what already exists
+- [ ] Calibration mode -- let users mark classify/decompose decisions as correct or wrong, use feedback to refine prompts over time
+
+**UX**
 - [ ] SSE/WebSocket for real-time tree updates (replace polling)
-- [ ] Task editing -- modify/delete subtasks before executing
-- [ ] Merge worktree branches back to main after completion
+- [ ] Task editing -- modify/delete/re-decompose subtasks before executing
 - [ ] Persistent sessions (SQLite/file-based)
 - [ ] Multi-session support

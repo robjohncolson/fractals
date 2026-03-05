@@ -18,6 +18,7 @@ export interface Session {
   tree: Task | null;
   workspace: string | null;
   batchStrategy: string;
+  executor: "claude" | "codex";
   phase: "idle" | "decomposing" | "planning" | "executing" | "done";
 }
 
@@ -44,11 +45,11 @@ export async function initWorkspace(path: string): Promise<{ ok: boolean }> {
   return res.json();
 }
 
-export async function startExecution(strategy?: string): Promise<{ ok: boolean; batches: string[][] }> {
+export async function startExecution(strategy?: string, executor?: string): Promise<{ ok: boolean; batches: string[][] }> {
   const res = await fetch(`${API}/api/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ strategy }),
+    body: JSON.stringify({ strategy, executor }),
   });
   return res.json();
 }

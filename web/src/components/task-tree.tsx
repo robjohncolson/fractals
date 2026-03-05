@@ -9,6 +9,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ChevronRight,
   ChevronDown,
   Layers,
@@ -24,7 +30,7 @@ const statusStyle: Record<string, { label: string; variant: "default" | "seconda
   failed: { label: "failed", variant: "destructive" },
 };
 
-function TaskNode({ task, depth }: { task: Task; depth: number }) {
+function TaskNode({ task, depth, onViewResult }: { task: Task; depth: number; onViewResult: (task: Task) => void }) {
   const [open, setOpen] = useState(true);
   const hasChildren = task.children.length > 0;
   const config = statusStyle[task.status] ?? statusStyle.pending;
@@ -66,7 +72,7 @@ function TaskNode({ task, depth }: { task: Task; depth: number }) {
         <CollapsibleContent>
           <div className="ml-4 border-l border-border pl-2">
             {task.children.map((child) => (
-              <TaskNode key={child.id} task={child} depth={depth + 1} />
+              <TaskNode key={child.id} task={child} depth={depth + 1} onViewResult={onViewResult} />
             ))}
           </div>
         </CollapsibleContent>
@@ -78,18 +84,44 @@ function TaskNode({ task, depth }: { task: Task; depth: number }) {
     <div>
       {row}
       {task.result && (
-        <div className="ml-10 text-xs text-muted-foreground border-l border-border pl-2 py-1 whitespace-pre-wrap max-h-20 overflow-hidden">
-          {task.result.slice(0, 500)}
-        </div>
+        <button
+          className="ml-10 text-xs text-muted-foreground border-l border-border pl-2 py-1 whitespace-pre-wrap max-h-16 overflow-hidden text-left w-full hover:text-foreground cursor-pointer"
+          onClick={() => onViewResult(task)}
+        >
+          {task.result.slice(0, 300)}
+          {task.result.length > 300 && <span className="text-muted-foreground/50"> ...</span>}
+        </button>
       )}
     </div>
   );
 }
 
 export function TaskTree({ tree }: { tree: Task }) {
+  const [viewingTask, setViewingTask] = useState<Task | null>(null);
+
   return (
     <div className="font-mono text-sm overflow-hidden">
-      <TaskNode task={tree} depth={0} />
+      <TaskNode task={tree} depth={0} onViewResult={setViewingTask} />
+
+      <Dialog open={viewingTask !== null} onOpenChange={(open) => !open && setViewingTask(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
+          {viewingTask && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-mono text-sm font-normal">
+                  <span className="text-muted-foreground">[{viewingTask.id}]</span>{" "}
+                  {viewingTask.description}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="overflow-auto flex-1 min-h-0">
+                <pre className="text-xs whitespace-pre-wrap break-words p-4 bg-muted rounded">
+                  {viewingTask.result}
+                </pre>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
