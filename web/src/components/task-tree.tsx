@@ -8,6 +8,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  ChevronRight,
+  ChevronDown,
+  Layers,
+  SquareCheck,
+} from "lucide-react";
 
 const statusStyle: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "pending", variant: "outline" },
@@ -21,32 +27,30 @@ const statusStyle: Record<string, { label: string; variant: "default" | "seconda
 function TaskNode({ task, depth }: { task: Task; depth: number }) {
   const [open, setOpen] = useState(true);
   const hasChildren = task.children.length > 0;
-  const isLeaf = !hasChildren;
   const config = statusStyle[task.status] ?? statusStyle.pending;
 
   const row = (
-    <div className="flex items-center gap-2 py-1 px-2 -mx-2 rounded hover:bg-muted/50 min-w-0">
-      {/* Expand/collapse or leaf indicator */}
-      <span className="w-4 shrink-0 text-center text-muted-foreground text-xs select-none">
-        {hasChildren ? (open ? "▼" : "▶") : "─"}
+    <div className="flex items-center gap-1.5 py-1 px-2 -mx-2 rounded hover:bg-muted/50 min-w-0">
+      <span className="w-4 shrink-0 flex items-center justify-center text-muted-foreground">
+        {hasChildren ? (
+          open ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+        ) : (
+          <span className="w-3.5" />
+        )}
       </span>
 
-      {/* Icon */}
-      <span className="shrink-0 text-xs">
-        {hasChildren ? "📂" : "📄"}
+      <span className="shrink-0 flex items-center text-muted-foreground">
+        {hasChildren ? <Layers size={14} /> : <SquareCheck size={14} />}
       </span>
 
-      {/* ID */}
       <span className="text-muted-foreground text-xs shrink-0 font-mono">
         {task.id}
       </span>
 
-      {/* Description */}
       <span className="text-sm truncate min-w-0 flex-1" title={task.description}>
         {task.description}
       </span>
 
-      {/* Status badge */}
       <Badge variant={config.variant} className="shrink-0 text-[10px] px-1.5 py-0">
         {config.label}
       </Badge>

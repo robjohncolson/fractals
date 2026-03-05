@@ -1,8 +1,9 @@
 import "dotenv/config";
+import os from "os";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
-import { Session, Task } from "./types.js";
+import { Session } from "./types.js";
 import { buildTree, plan, leaves, propagateStatus } from "./orchestrator.js";
 import { executeTask } from "./executor.js";
 import { initWorkspace } from "./workspace.js";
@@ -45,12 +46,13 @@ app.post("/api/decompose", async (c) => {
 
 // POST /api/workspace — initialize workspace directory
 app.post("/api/workspace", async (c) => {
-  const { path } = await c.req.json<{ path: string }>();
+  const { path: rawPath } = await c.req.json<{ path: string }>();
+  const resolved = rawPath.startsWith("~") ? rawPath.replace("~", os.homedir()) : rawPath;
 
-  await initWorkspace(path);
-  session.workspace = path;
+  await initWorkspace(resolved);
+  session.workspace = resolved;
 
-  return c.json({ ok: true, workspace: path });
+  return c.json({ ok: true, workspace: resolved });
 });
 
 // POST /api/execute — start batch execution of all leaf tasks
@@ -109,6 +111,7 @@ app.get("/api/leaves", (c) => {
     }))
   );
 });
+
 
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
 serve({ fetch: app.fetch, port: PORT }, () => {

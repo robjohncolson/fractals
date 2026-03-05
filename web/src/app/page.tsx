@@ -62,6 +62,8 @@ export default function Home() {
     try {
       const session = await decompose(taskInput, maxDepth);
       setTree(session.tree);
+      const slug = taskInput.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40);
+      setWorkspace(`~/fractal/${slug}`);
       setPhase("review");
     } catch {
       setPhase("input");
@@ -81,7 +83,7 @@ export default function Home() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Fractal</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Recursive task decomposition orchestrator
+          Recursive agentic task orchestrator
         </p>
       </div>
 
@@ -160,8 +162,9 @@ export default function Home() {
                   value={workspace}
                   onChange={(e) => setWorkspace(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSetupWorkspace()}
+                  className="font-mono text-sm"
                 />
-                <Button onClick={handleSetupWorkspace}>
+                <Button onClick={handleSetupWorkspace} disabled={!workspace.trim()}>
                   Confirm &amp; Execute
                 </Button>
               </div>
