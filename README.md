@@ -1,8 +1,23 @@
-# Fractals
+<div align="center">
+  <img src="./images/fractals-cover.png" alt="Fractals" width="600" />
+  <h1>Fractals 🌀</h1>
+  <p><strong>Recursive agentic task orchestrator</strong></p>
+  <p><strong>Give it any high-level task and it grows a self-similar tree of executable subtasks, then runs each leaf in isolated git worktrees with an agent swarm.</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/stability-experimental-orange.svg" alt="Experimental" />
+    <a href="https://opensource.org/licenses/MIT">
+      <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" />
+    </a>
+    <a href="https://discord.gg/jH6AcEChuD">
+      <img src="https://img.shields.io/discord/1353722981163208785?logo=discord&logoColor=white&label=Discord&color=7289DA" alt="Discord" />
+    </a>
+  </p>
+</div>
 
-Recursive agentic task orchestrator. Give it any high-level task and it grows a self-similar tree of executable subtasks, then runs each leaf using Claude Code CLI in isolated git worktrees.
 
-Port `1618` — the golden ratio, the constant behind fractal geometry.
+<p align="center">
+  <img src="./images/fractals.png" alt="Fractals demo UI" width="760" />
+</p>
 
 ## Architecture
 
@@ -104,6 +119,8 @@ npm run server
 # 5. Start the frontend (port 3000)
 cd web && npm run dev
 ```
+
+Port `1618` — the golden ratio, the constant behind fractal geometry.
 
 ## API
 
