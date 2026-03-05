@@ -32,6 +32,7 @@ app.get("/api/session", (c) => {
 app.post("/api/decompose", async (c) => {
   const { task, maxDepth } = await c.req.json<{ task: string; maxDepth?: number }>();
 
+  console.log(`[server] decompose: "${task}" (maxDepth=${maxDepth ?? 4})`);
   session.task = task;
   session.maxDepth = maxDepth ?? 4;
   session.phase = "decomposing";
@@ -48,6 +49,7 @@ app.post("/api/decompose", async (c) => {
 app.post("/api/workspace", async (c) => {
   const { path: rawPath } = await c.req.json<{ path: string }>();
   const resolved = rawPath.startsWith("~") ? rawPath.replace("~", os.homedir()) : rawPath;
+  console.log(`[server] workspace: ${resolved}`);
 
   await initWorkspace(resolved);
   session.workspace = resolved;
@@ -71,23 +73,31 @@ app.post("/api/execute", async (c) => {
   const batches = createBatches(session.tree, session.batchStrategy);
 
   // Execute batches sequentially, tasks within each batch concurrently
+  console.log(`[server] starting execution: ${batches.length} batches, strategy="${session.batchStrategy}"`);
   (async () => {
-    for (const batch of batches) {
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      console.log(`[server] batch ${i + 1}/${batches.length}: [${batch.map((t) => t.id).join(", ")}]`);
       await Promise.all(
         batch.map(async (task) => {
           task.status = "running";
+          console.log(`[server] [${task.id}] running: "${task.description}"`);
           try {
             task.result = await executeTask(task, session.workspace!);
             task.status = "done";
+            console.log(`[server] [${task.id}] done`);
           } catch (err) {
             task.result = err instanceof Error ? err.message : String(err);
             task.status = "failed";
+            console.error(`[server] [${task.id}] failed: ${task.result}`);
           }
           propagateStatus(session.tree!);
         })
       );
+      console.log(`[server] batch ${i + 1}/${batches.length} complete`);
     }
     session.phase = "done";
+    console.log("[server] all batches complete");
   })();
 
   return c.json({ ok: true, batches: batches.map((b) => b.map((t) => t.id)) });
@@ -113,7 +123,7 @@ app.get("/api/leaves", (c) => {
 });
 
 
-const PORT = parseInt(process.env.PORT ?? "3001", 10);
+const PORT = parseInt(process.env.PORT ?? "1618", 10);
 serve({ fetch: app.fetch, port: PORT }, () => {
-  console.log(`Fractal server running on http://localhost:${PORT}`);
+  console.log(`Fractals server running on http://localhost:${PORT}`);
 });

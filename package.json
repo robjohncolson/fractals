@@ -1,7 +1,7 @@
 {
-  "name": "fractal",
+  "name": "fractals",
   "version": "1.0.0",
-  "description": "Fractal — recursive agentic task orchestrator",
+  "description": "Fractals — recursive agentic task orchestrator",
   "main": "dist/index.js",
   "scripts": {
     "server": "tsx src/server.ts",

@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 const client = new OpenAI();
-const MODEL = "gpt-5.2";
+const MODEL = "gpt-5-mini";
 
 function formatLineage(lineage: string[], current: string): string {
   const parts = lineage.map((desc, i) => `${"  ".repeat(i)}${i}. ${desc}`);
@@ -54,18 +54,15 @@ export async function decompose(task: string, lineage: string[]): Promise<string
     messages: [
       {
         role: "system",
-        content: `You are a pragmatic task decomposition engine for software projects.
+        content: `You are a task decomposition engine. Break a composite task into 2-5 concrete subtasks.
 
-Given a composite task, break it into the MINIMUM number of subtasks needed. Use your judgment:
-- A simple task might only need 2 subtasks.
-- A complex task might need up to 7, but only if each is truly distinct and necessary.
-- Do NOT pad with extra subtasks to reach a number. Do NOT create "test and polish" or "define requirements" subtasks unless genuinely needed.
-- Do NOT create subtasks that overlap or restate each other differently.
-- Each subtask should represent real, distinct work — something a developer would naturally treat as a separate concern.
+Rules:
+- Each subtask must be specific and actionable — not vague or meta.
+- Subtasks should be non-overlapping and collectively cover the parent task.
+- Do NOT repeat work already covered by ancestor tasks in the hierarchy.
+- Keep subtask descriptions concise (one sentence).
 
-Think about how an experienced developer would actually split this work. If the task is "build a login page", you don't need 5 subtasks — maybe just "implement auth API endpoint" and "build login form UI" is enough.
-
-You will receive the full task hierarchy. Use it to understand what ancestors already cover — never repeat their scope.`,
+You will receive the full task hierarchy. Use it to understand what has already been scoped above.`,
       },
       { role: "user", content: `Task hierarchy:\n${context}` },
     ],

@@ -63,7 +63,7 @@ export default function Home() {
       const session = await decompose(taskInput, maxDepth);
       setTree(session.tree);
       const slug = taskInput.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40);
-      setWorkspace(`~/fractal/${slug}`);
+      setWorkspace(`~/fractals/${slug}`);
       setPhase("review");
     } catch {
       setPhase("input");
@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background p-8 max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Fractal</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Fractals</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Recursive agentic task orchestrator
         </p>

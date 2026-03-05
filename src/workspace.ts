@@ -1,6 +1,11 @@
 import { spawn } from "child_process";
 import fs from "fs";
+import os from "os";
 import path from "path";
+
+function resolvePath(p: string): string {
+  return p.startsWith("~") ? p.replace("~", os.homedir()) : p;
+}
 
 function run(command: string, args: string[], cwd: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -21,6 +26,7 @@ function run(command: string, args: string[], cwd: string): Promise<string> {
 
 /** Initialize workspace: create dir, git init, initial commit. */
 export async function initWorkspace(workspacePath: string): Promise<void> {
+  workspacePath = resolvePath(workspacePath);
   fs.mkdirSync(workspacePath, { recursive: true });
 
   if (!fs.existsSync(path.join(workspacePath, ".git"))) {
@@ -33,6 +39,7 @@ export async function initWorkspace(workspacePath: string): Promise<void> {
 
 /** Create a git worktree for a specific task. Returns the worktree path. */
 export async function createWorktree(workspacePath: string, taskId: string): Promise<string> {
+  workspacePath = resolvePath(workspacePath);
   const branchName = `task/${taskId}`;
   const worktreePath = path.join(workspacePath, ".worktrees", taskId);
 
@@ -45,6 +52,7 @@ export async function createWorktree(workspacePath: string, taskId: string): Pro
 
 /** Remove a git worktree after task completion. */
 export async function removeWorktree(workspacePath: string, taskId: string): Promise<void> {
+  workspacePath = resolvePath(workspacePath);
   const worktreePath = path.join(workspacePath, ".worktrees", taskId);
   if (!fs.existsSync(worktreePath)) return;
   await run("git", ["worktree", "remove", worktreePath, "--force"], workspacePath);

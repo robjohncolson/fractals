@@ -5,7 +5,7 @@ import { printTree } from "./print.js";
 const task = process.argv.slice(2).join(" ") || "Build a DocuSign clone";
 const maxDepth = parseInt(process.env.MAX_DEPTH ?? "4", 10);
 
-console.log(`\nFractal\n`);
+console.log(`\nFractals\n`);
 console.log(`Task:      "${task}"`);
 console.log(`Max depth: ${maxDepth}\n`);
 console.log("─".repeat(60));

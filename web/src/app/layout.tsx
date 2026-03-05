@@ -8,8 +8,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fractal",
-  description: "Recursive task decomposition orchestrator",
+  title: "Fractals",
+  description: "Recursive agentic task orchestrator",
 };
 
 export default function RootLayout({
