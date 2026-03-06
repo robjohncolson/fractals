@@ -34,12 +34,12 @@
 │  src/  (Hono server)                                    │
 │                                                         │
 │  ┌─────────┐   ┌──────────┐   ┌──────────────────────┐  │
-│  │  LLM    │   │Orchestr- │   │  Executor            │  │
-│  │classify │──>│  ator    │   │  Claude / Codex CLI  │  │
+│  │ Codex   │   │Orchestr- │   │  Executor            │  │
+│  │classify │──>│  ator    │   │  Codex / Claude CLI  │  │
 │  │decompose│   │ plan()   │   │  git worktrees       │  │
 │  └─────────┘   └──────────┘   └──────────────────────┘  │
 │                                                         │
-│  OpenAI (gpt-5.2)            Claude / Codex CLI (spawn) │
+│  Codex CLI (structured)      Codex / Claude CLI (spawn) │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -57,8 +57,8 @@ User enters task                       User confirms plan
   └──composite──> decompose(task)      batch leaf tasks
                       │                        │
                  [children]                    v
-                      │                 claude --dangerously-skip-permissions
-                 plan(child) <────┐          -p "task + lineage context"
+                      │                 codex exec / claude -p
+                 plan(child) <────┐          "task + lineage context"
                       │           │          (per worktree)
                       └───────────┘
 ```
@@ -69,7 +69,7 @@ User enters task                       User confirms plan
 2. **Decompose** -- server recursively breaks it into a tree
 3. **Review** -- inspect the full plan tree before committing
 4. **Workspace** -- provide a directory path (git-initialized automatically, defaults to `~/fractals/<task-slug>`)
-5. **Execute** -- leaf tasks run via Claude CLI in batches, status updates poll in real-time
+5. **Execute** -- leaf tasks run via Codex CLI by default (Claude optional), status updates poll in real-time
 
 ## Batch Strategies
 
@@ -87,9 +87,9 @@ Due to rate limits, leaf tasks execute in batches rather than all at once.
 src/
   server.ts        Hono API server (:1618)
   types.ts         Shared types (Task, Session, BatchStrategy)
-  llm.ts           OpenAI calls: classify + decompose (structured output)
+  llm.ts           Codex CLI planning: classify + decompose (structured output)
   orchestrator.ts  Recursive plan() -- builds the tree, no execution
-  executor.ts      Claude CLI invocation per task in git worktree
+  executor.ts      Codex / Claude CLI invocation per task in git worktree
   workspace.ts     git init + worktree management
   batch.ts         Batch execution strategies
   index.ts         CLI entry point (standalone, no server)
@@ -110,8 +110,8 @@ npm install
 # 2. Install frontend deps
 cd web && npm install && cd ..
 
-# 3. Set your OpenAI key
-echo "OPENAI_API_KEY=sk-..." > .env
+# 3. Log in to Codex CLI
+codex login
 
 # 4. Start the server (port 1618)
 npm run server
@@ -137,7 +137,9 @@ Port `1618` — the golden ratio, the constant behind fractal geometry.
 
 | Env Variable | Default | Where | Description |
 |---|---|---|---|
-| `OPENAI_API_KEY` | -- | `.env` | Required. OpenAI API key. |
+| `CODEX_BIN` | auto-detect | `.env` | Optional explicit path to the Codex CLI binary or shim. |
+| `CLAUDE_BIN` | auto-detect | `.env` | Optional explicit path to the Claude CLI binary or shim. |
+| `GIT_BIN` | auto-detect | `.env` | Optional explicit path to Git if it is not on PATH. |
 | `PORT` | `1618` | `.env` | Server port. |
 | `MAX_DEPTH` | `4` | CLI only | Max recursion depth. |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:1618` | `web/.env.local` | Server URL for frontend. |

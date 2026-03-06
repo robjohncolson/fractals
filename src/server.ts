@@ -20,7 +20,7 @@ let session: Session = {
   tree: null,
   workspace: null,
   batchStrategy: "depth-first",
-  executor: "claude",
+  executor: "codex",
   phase: "idle",
 };
 

@@ -31,7 +31,7 @@ export default function Home() {
   const [maxDepth, setMaxDepth] = useState(3);
   const [tree, setTree] = useState<Task | null>(null);
   const [workspace, setWorkspace] = useState("");
-  const [executor, setExecutor] = useState<"claude" | "codex">("claude");
+  const [executor, setExecutor] = useState<"claude" | "codex">("codex");
   const [batches, setBatches] = useState<string[][]>([]);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -154,8 +154,8 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Each leaf task runs in its own git worktree. Provide an absolute
-                path for the workspace directory (will be git-initialized).
+                Planning runs through the Codex CLI. Each leaf task runs in its own
+                git worktree, using the executor you choose below.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -171,17 +171,17 @@ export default function Home() {
                 <div className="flex gap-1">
                   <Button
                     size="sm"
-                    variant={executor === "claude" ? "default" : "outline"}
-                    onClick={() => setExecutor("claude")}
-                  >
-                    Claude
-                  </Button>
-                  <Button
-                    size="sm"
                     variant={executor === "codex" ? "default" : "outline"}
                     onClick={() => setExecutor("codex")}
                   >
                     Codex
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={executor === "claude" ? "default" : "outline"}
+                    onClick={() => setExecutor("claude")}
+                  >
+                    Claude
                   </Button>
                 </div>
                 <div className="flex-1" />
