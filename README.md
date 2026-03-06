@@ -122,6 +122,60 @@ cd web && npm run dev
 
 Port `1618` — the golden ratio, the constant behind fractal geometry.
 
+## Using Fractals On Another Repo
+
+Fractals runs from this repo, but it operates on a target workspace that can be any local git repo.
+
+Example target repo:
+
+```text
+C:\Users\ColsonR\lrsl-driller
+```
+
+Typical workflow:
+
+1. Make sure the target repo is already a git repo and is on the branch you want to branch from.
+2. Commit or stash any in-progress changes in the target repo first.
+3. Start Fractals from this repo:
+
+```bash
+cd C:\Users\ColsonR\fractals
+npm run server
+cd web && npm run dev
+```
+
+4. Open `http://localhost:3000`
+5. Enter a task that clearly references the target project, for example:
+
+```text
+In the lrsl-driller repo, add a new drilling summary panel and wire it to the existing results flow.
+```
+
+6. Review the generated task tree.
+7. When Fractals asks for a workspace path, enter the target repo path:
+
+```text
+C:\Users\ColsonR\lrsl-driller
+```
+
+What happens next:
+
+- Fractals uses the target repo as the workspace.
+- If the repo already has `.git`, Fractals will not re-initialize it.
+- Fractals creates worktrees under `.worktrees/` inside the target repo.
+- Each leaf task runs on its own branch, such as `task/1.1`, `task/1.2`, and so on.
+- Each leaf task makes its own commit in its own worktree.
+
+Current limitation:
+
+- Fractals does not merge those task branches back together yet.
+- After execution finishes, you still need to inspect the result and merge or cherry-pick the generated branches yourself.
+
+CLI note:
+
+- `npm run cli "your task"` only prints the planned task tree right now.
+- The full plan-and-execute workflow currently lives in the server and web UI.
+
 ## API
 
 | Endpoint | Method | Description |
